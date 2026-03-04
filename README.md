@@ -1,0 +1,7 @@
+Your company has two microservices running in the same Kubernetes cluster: A frontend application that serves the main website, and an API backend service that handles API requests. Both services need to be accessible from outside the cluster through the same domain name (app.example.com) but with different URL paths. Use the F5 NGINX Ingress controller.
+
+Create a namespace called webapp. Deploy two applications: a frontend application (use nginx:1.29.1-alpine image, name: frontend, two replicas), and an API application (use the httpd:2.4.65-alpine image, name: api, two replicas).
+
+Create ClusterIP Services for both Deployments, a Frontend Service on port 80, an API Service on port 80.
+
+Create an Ingress resource that uses the host app.example.com and routes the paths / and /app to the Frontend Service. It also routes /api to the API Service. Use the nginx Ingress class. Verify the proper Ingress configuration by making a call to it.
