@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi
+  namespace: log
+spec:
+  containers:
+  - image: nginx:1.21.6
+    name: nginx
+    volumeMounts:
+    - name: accesslog
+      mountPath: /var/log/nginx
+  - image: busybox:1.35.0
+    name: streaming
+    args: [/bin/sh, -c, 'tail -n+1 -f /var/log/nginx/access.log']
+    volumeMounts:
+    - name: accesslog
+      mountPath: /var/log/nginx
+  volumes:
+  - name: accesslog
+    emptyDir: {}
+
+
+--> kubectl apply -f multi-container.yaml
+
+-->kubectl get -n log pods multi -o wide
+NAME    READY   STATUS    RESTARTS   AGE     IP           NODE     NOMINATED NODE   READINESS GATES
+multi   2/2     Running   0          2m48s   10.244.1.7   node01   <none>           <none>
+controlplane:~$ 
+
+--> kubectl run baby-kube --image=busybox:latest -n log --restart=Never -it --rm -- wget 10.244.1.7
+Connecting to 10.244.1.7 (10.244.1.7:80)
+saving to 'index.html'
+index.html           100% |********************************|   615  0:00:00 ETA
+'index.html' saved
+pod "baby-kube" deleted
+
+
+--> kubectl run baby-kube --image=busybox:latest -n log --restart=Never -it --rm -- wget 10.244.1.7
+Connecting to 10.244.1.7 (10.244.1.7:80)
+saving to 'index.html'
+index.html           100% |********************************|   615  0:00:00 ETA
+'index.html' saved
+pod "baby-kube" deleted
+
+
+-->  kubectl run baby-kube --image=busybox:latest -n log --restart=Never -it --rm -- wget 10.244.1.7
+Connecting to 10.244.1.7 (10.244.1.7:80)
+saving to 'index.html'
+index.html           100% |********************************|   615  0:00:00 ETA
+'index.html' saved
+pod "baby-kube" deleted
+
+
+controlplane:~$ kubectl logs -n log multi -c streaming
+10.244.1.8 - - [09/Mar/2026:08:51:30 +0000] "GET / HTTP/1.1" 200 615 "-" "Wget" "-"
+10.244.1.9 - - [09/Mar/2026:08:51:44 +0000] "GET / HTTP/1.1" 200 615 "-" "Wget" "-"
+10.244.1.10 - - [09/Mar/2026:08:51:50 +0000] "GET / HTTP/1.1" 200 615 "-" "Wget" "-"
+
+
+and we can confirm its working perfectly. 
