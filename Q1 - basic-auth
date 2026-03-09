@@ -1,0 +1,48 @@
+Creating a Secret of Type kubernetes.io/basic-auth
+
+Create a Secret of type kubernetes.io/basic-auth named api-basic-auth in the namespace secure.
+
+Provide the key-value pairs username=bot and password=pa88w0rD.
+
+
+controlplane:~$ cat secret.yaml 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: api-basic-auth
+  namespace: secure
+type: kubernetes.io/basic-auth
+stringData:
+  username: bot
+  password: pa88w0rD
+controlplane:~$ 
+
+Create a Pod named server-app with the image nginx in the namespace secure and consume the Secret as environment variables.
+
+Open an interactive shell to the Pod and print all environment variables. The key-value pairs from the Secret should be available.
+
+controlplane:~$ cat secret.yaml 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: api-basic-auth
+  namespace: secure
+type: kubernetes.io/basic-auth
+stringData:
+  username: bot
+  password: pa88w0rD
+controlplane:~$ cat server-app.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: server-app
+  namespace: secure
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    envFrom:
+    - secretRef:
+        name: api-basic-auth
+  restartPolicy: Never
+controlplane:~$ 
