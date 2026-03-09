@@ -1,0 +1,10 @@
+You are supposed to implement cluster-level logging with a sidecar container.
+
+Define a multicontainer Pod named multi in the file multi-container.yaml. 
+The main application container named nginx should use the image nginx:1.21.6.
+The sidecar container named streaming uses the image busybox:1.35.0 and 
+the arguments /bin/sh, -c, 'tail -n+1 -f /var/log/nginx/access.log'. Do not create the Pod yet.
+
+Define a Volume of type emptyDir for the Pod and mount it to the path /var/log/nginx for both containers.
+Access the endpoint of the nginx service a couple of times using a wget or curl command. Inspect the logs of the sidecar container.
+
